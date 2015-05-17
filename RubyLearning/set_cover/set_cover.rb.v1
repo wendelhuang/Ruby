@@ -1,0 +1,215 @@
+#!/usr/bin/env ruby 
+
+require 'set' 
+
+class Set 
+  def cover(s) 
+    count = 0 
+    self.each do |element| 
+      count += 1 if s.include?(element) 
+    end 
+    return count 
+  end 
+end 
+
+class Test 
+  def initialize 
+  end 
+
+  def step1 
+    #puts "--------- step 1 ----------------" 
+    @E = Set.new [1, 2, 3, 4, 5, 6, 7, 8 ,9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ,19, 20,]
+    @S = Hash.new
+    @S[1] = Set.new [1, 2, 4, 3, 6]
+    @S[2] = Set.new [2, 3, 5, 8, 11, 20]
+    @S[3] = Set.new [20, 3, 5, 11]
+    @S[4] = Set.new [1, 4, 7, 6, 12]
+    @S[5] = Set.new [1, 4, 7, 8, 9, 11, 13, 14]
+    @S[6] = Set.new [5, 8, 9, 10, 11, 16, 20]
+    @S[7] = Set.new [10, 15, 16, 11, 19, 20]
+    @S[8] = Set.new [6, 7, 12, 13, 17, 18]
+    @S[9] = Set.new [9, 7, 14, 13, 15, 18, 17, 19]
+    @S[10] = Set.new [9, 10, 14, 16, 15, 18, 19]
+    @S[11] = Set.new [6, 7, 1, 2, 4]
+    @S[12] = Set.new [5, 11, 10, 16, 20]
+    @S[13] = Set.new [12, 14, 13, 18, 17]
+    @S[14] = Set.new [9, 10, 14, 15]
+    @S[15] = Set.new [3, 5, 11, 2, 20]
+    @S[16] = Set.new [5, 2, 3, 4, 8]
+=begin
+    @E = Set.new [1, 2, 3, 4, 5] 
+    @S = Hash.new 
+    @S[1] = Set.new [1, 2] 
+    @S[2] = Set.new [3, 4] 
+    @S[3] = Set.new [2, 4, 5] 
+    @S[4] = Set.new [4, 5] 
+=end
+  end 
+
+  def step2 
+    #puts "--------- step 2 ----------------" 
+    @X, @C, @T = @E.dup, Set.new, Hash.new 
+    for i in 1..@S.length do 
+      h_temp = Hash.new 
+      for j in i+1..@S.length do 
+        h_temp[j] = @S[i] + @S[j] 
+      end 
+      @T[i] = h_temp 
+    end 
+    @k = 1 
+  end 
+
+  def step3 
+    #puts "--------- step 3 ----------------" 
+    @uk, @vk = Hash.new, Hash.new 
+    while @X.length != 0 do 
+      @Y = @X.dup 
+      num_i, num_j, num_count = 1, 2, -1 
+      for i in 1..@S.length do 
+        for j in i+1..@S.length do 
+          if !@T[i].nil? && !@T[i][j].nil? 
+            cover_number = @T[i][j].cover(@X) 
+            num_i, num_j, num_count = i, j, cover_number if cover_number > num_count 
+          end 
+        end 
+      end 
+      @uk[@k], @vk[@k] = @S[num_i], @S[num_j] 
+      @X = @X - @T[num_i][num_j] 
+      @C.add(@S[num_i]) 
+      @C.add(@S[num_j]) 
+
+      @T.delete(num_i) if !@T[num_i].nil? 
+      for i in 1..@S.length do 
+        @T[i].delete(num_j) if !@T[i].nil? && !@T[i][num_j].nil? 
+      end 
+      @k += 1 
+    end 
+  end 
+
+  def step4 
+    #puts "--------- step 4 ----------------" 
+    if @X.length == 0 
+      if @Y.subset? @uk[@k-1] 
+        @C -= @vk[@k-1] 
+      elsif @Y.subset? @vk[@k-1] 
+        @C -= @uk[@k-1] 
+      end 
+    end 
+#    print_set @C 
+  end 
+
+  def print_set(s) 
+    print "{" 
+    s.each do |ss| 
+      print "{" 
+      print ss.to_a.join(',') 
+      print "}" 
+    end 
+    puts "}" 
+  end 
+end 
+
+class GreedySetCover 
+  def initialize 
+
+    @U = Set.new [1, 2, 3, 4, 5, 6, 7, 8 ,9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ,19, 20,]
+    @S = Hash.new
+    @S[1] = Set.new [1, 2, 4, 3, 6]
+    @S[2] = Set.new [2, 3, 5, 8, 11, 20]
+    @S[3] = Set.new [20, 3, 5, 11]
+    @S[4] = Set.new [1, 4, 7, 6, 12]
+    @S[5] = Set.new [1, 4, 7, 8, 9, 11, 13, 14]
+    @S[6] = Set.new [5, 8, 9, 10, 11, 16, 20]
+    @S[7] = Set.new [10, 15, 16, 11, 19, 20]
+    @S[8] = Set.new [6, 7, 12, 13, 17, 18]
+    @S[9] = Set.new [9, 7, 14, 13, 15, 18, 17, 19]
+    @S[10] = Set.new [9, 10, 14, 16, 15, 18, 19]
+    @S[11] = Set.new [6, 7, 1, 2, 4]
+    @S[12] = Set.new [5, 11, 10, 16, 20]
+    @S[13] = Set.new [12, 14, 13, 18, 17]
+    @S[14] = Set.new [9, 10, 14, 15]
+    @S[15] = Set.new [3, 5, 11, 2, 20]
+    @S[16] = Set.new [5, 2, 3, 4, 8]
+=begin
+    @U = Set.new [1, 2, 3, 4, 5] 
+    @S = Hash.new 
+    @S[1] = Set.new [1, 2] 
+    @S[2] = Set.new [3, 4] 
+    @S[3] = Set.new [2, 4, 5] 
+    @S[4] = Set.new [4, 5] 
+=end
+    @C = Set.new 
+  end 
+
+  def greedy 
+    while f < @U.length do 
+      num_i, set_len = 1, -1 
+      for i in 1..@S.length do 
+        u = Set.new
+        @C.each do |c|
+          u += c
+        end
+        u += @S[i]
+        num_i, set_len = i, u.length if set_len < u.length 
+      end 
+      @C.add(@S[num_i]) 
+    end 
+#    print_set(@C) 
+  end 
+
+  def print_set(s) 
+    print "{" 
+    s.each do |ss| 
+      print "{" 
+      print ss.to_a.join(',') 
+      print "}" 
+    end 
+    puts "}" 
+  end 
+
+  def f 
+    s = Set.new 
+    @C.each do |c| 
+      s += c 
+    end 
+    return s.length 
+  end 
+end 
+
+
+class TestProfile 
+  def test_profile 
+    time_begin = Time.now 
+    for i in 1..10000 do 
+      test = Test.new 
+      test.step1 
+      test.step2 
+      test.step3 
+      test.step4 
+    end 
+    time_end = Time.now 
+    puts "#{time_end}-#{time_begin} = #{time_end - time_begin}" 
+
+    time_begin = Time.now 
+    for i in 1..10000 do 
+      greedy = GreedySetCover.new 
+      greedy.greedy 
+    end 
+    time_end = Time.now 
+    puts "#{time_end}-#{time_begin} = #{time_end - time_begin}" 
+  end 
+end 
+
+test = TestProfile.new 
+test.test_profile 
+
+=begin
+test = Test.new 
+test.step1 
+test.step2 
+test.step3 
+test.step4
+
+greedy = GreedySetCover.new 
+greedy.greedy 
+=end
