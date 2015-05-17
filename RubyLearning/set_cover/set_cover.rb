@@ -42,16 +42,17 @@ end
 class Test 
   def initialize(s)
     @S = s.dup
-
+=begin
     puts "------------------------------------"
     for i in 1..@S.length do
       puts "@S[#{i}] = Set.new [#{@S[i].to_a.join(',')}]"
     end
+=end
   end 
   
   def step1 
     arr = []
-    for i in 1..10 do
+    for i in 1..20 do
       arr << i
     end
     @E = Set.new arr
@@ -71,17 +72,20 @@ class Test
 
   def step3 
     @uk, @vk = Hash.new, Hash.new 
-    while @X.length != 0 do 
-      @Y = @X.dup 
+    while @X.length != 0 do
+      is_T_empty = true
       num_i, num_j, num_count = 1, 2, -1 
       for i in 1..@S.length do 
         for j in i+1..@S.length do 
-          if !@T[i].nil? && !@T[i][j].nil? 
+          if !@T[i].nil? && !@T[i][j].nil?
+            is_T_empty = false if is_T_empty
             cover_number = @T[i][j].cover(@X) 
             num_i, num_j, num_count = i, j, cover_number if cover_number > num_count 
           end 
         end 
-      end 
+      end
+      return if is_T_empty
+      @Y = @X.dup 
       @uk[@k], @vk[@k] = @S[num_i], @S[num_j] 
       @X = @X - @T[num_i][num_j] 
       @C.add(@S[num_i]) 
@@ -95,12 +99,12 @@ class Test
     end 
   end 
 
-  def step4 
+  def step4
     if @X.length == 0 
       if @Y.subset? @uk[@k-1] 
-        @C -= @vk[@k-1] 
+        @C.delete(@vk[@k-1])
       elsif @Y.subset? @vk[@k-1] 
-        @C -= @uk[@k-1] 
+        @C.delete(@uk[@k-1])
       end 
     end 
 #    print_set @C
@@ -207,7 +211,7 @@ class TestProfile
         count2 += 1
       end
     end
-    puts "You win #{count1}, draw #{count2} greedy wins #{2000-count1-count2}"
+    puts "You win #{count1}, equal #{count2}, greedy wins #{2000-count1-count2}"
   end
 end 
 
@@ -216,12 +220,6 @@ test = TestProfile.new
 test.test_set_number_profile 
 
 =begin
-test = Test.new 
-test.step1 
-test.step2 
-test.step3 
-test.step4
-
 greedy = GreedySetCover.new 
 greedy.greedy 
 =end
