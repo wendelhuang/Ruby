@@ -1,4 +1,0 @@
-source 'https://ruby.taobao.org'
-
-gem 'json'
-gem 'sinatra'
